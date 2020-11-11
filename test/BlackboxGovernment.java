@@ -9,18 +9,24 @@ public class BlackboxGovernment {
         assertTrue(true);
     }
 
-    @Test
+    @Test (expected = IllegalArgumentException.class)
     public void configEmpty() {
         Government gov = new Government("gov_empty.config");
-        // Assert that we did not have an exception
-        assertTrue(true);
     }
 
-    @Test
+    @Test (expected = IllegalArgumentException.class)
     public void configInvalid() {
         Government gov = new Government("gov_invalid.config");
-        // Assert that we did not have an exception
-        assertTrue(true);
+    }
+
+    @Test (expected = IllegalArgumentException.class)
+    public void configEmptyFilename() {
+        Government gov = new Government("");
+    }
+
+    @Test (expected = IllegalArgumentException.class)
+    public void configNullFilename() {
+        Government gov = new Government(null);
     }
 
     /*
@@ -69,7 +75,7 @@ public class BlackboxGovernment {
     public void testMobileContactWithLab() {
         Government gov = new Government("gov.config");
         gov.recordTestResult("9999", 123, true);
-        gov.mobileTestResult("123", testInfoPositive);
+        gov.mobileTest("123", testInfoPositive);
         boolean result = gov.mobileContact("123", contactInfo);
         assertTrue(result);
     }
@@ -79,7 +85,7 @@ public class BlackboxGovernment {
     public void testMobileContactWithLabLongAgo() {
         Government gov = new Government("gov.config");
         gov.recordTestResult("9999", 108, true);
-        gov.mobileTestResult("f0f0f0", testInfoPositive);
+        gov.mobileTest("f0f0f0", testInfoPositive);
         boolean result = gov.mobileContact("f0f0f0", contactInfo);
         assertFalse(result);
     }
@@ -88,7 +94,7 @@ public class BlackboxGovernment {
     // 1002 is positive, 1001 had contact with 1002
     public void testMobileContactWithLabNoContact() {
         Government gov = new Government("gov.config");
-        gov.mobileTestResult("123", testInfoPositive);
+        gov.mobileTest("123", testInfoPositive);
         boolean result = gov.mobileContact("123", contactInfoEmpty);
         assertFalse(result);
     }
@@ -98,7 +104,7 @@ public class BlackboxGovernment {
     public void testMobileContactWithLabOtherPerson() {
         Government gov = new Government("gov.config");
         gov.recordTestResult("9999", 123, true);
-        gov.mobileTestResult("123", testInfoPositive);
+        gov.mobileTest("123", testInfoPositive);
         boolean result = gov.mobileContact("123", contactInfoOtherPerson);
         assertFalse(result);
     }
@@ -107,9 +113,66 @@ public class BlackboxGovernment {
     public void testMobileContactEmptyData() {
         Government gov = new Government("gov.config");
         gov.recordTestResult("9999", 123, true);
-        gov.mobileTestResult("123", testInfoPositive);
+        gov.mobileTest("123", testInfoPositive);
         boolean result = gov.mobileContact("123", "");
         assertFalse(result);
+    }
+
+    // Test that mobileContact actually updates the database
+    @Test
+    public void testMobileContactDatabase() {
+        Government gov = new Government("gov.config");
+        gov.mobileContact("123", contactInfo);
+
+        // TODO assertTrue(contact result exists in database)
+    }
+
+    // Test that mobileContact works with old data
+    @Test
+    public void testMobileContactDatabase() {
+        // TODO put contact data and positive test result into database
+
+        Government gov = new Government("gov.config");
+        boolean result = gov.mobileContact("123", contactInfo);
+
+        assertTrue(result);
+    }
+
+    /*
+     * recordTestResult
+     */
+
+    // Test that recordTestResult actually updates the database
+    @Test
+    public void testLabTestDatabase() {
+        Government gov = new Government("gov.config");
+        gov.recordTestResult("9999", 123, true);
+
+        // TODO assertTrue(test result exists in database)
+    }
+
+    @Test
+    public void testMobileTestDatabase() {
+        Government gov = new Government("gov.config");
+        gov.mobileTest("9999", testInfoPositive);
+
+        // TODO assertTrue(test result exists in database and is linked with a specific device id)
+    }
+
+    @Test
+    public void testMobileTestDatabaseNegative() {
+        Government gov = new Government("gov.config");
+        gov.mobileTest("9999", testInfoNegative);
+
+        // TODO assert(negative test result exists)
+    }
+
+    @Test
+    public void testMobileTestInvalid() {
+        Government gov = new Government("gov.config");
+        gov.mobileTest("9999", "");
+
+        // TODO assert(no row exists for this device)
     }
 
     /*
@@ -281,5 +344,13 @@ public class BlackboxGovernment {
         // The calculated density should be exactly 0.833...
         int num = gov.findGatherings(100, 10, -1, 0.8f);
         assertEquals(num, 0);
+    }
+    
+    @Test
+    public void testFindGatheringDatabase() {
+        Government gov = new Government("gov.config");
+        // TODO create correct SQL database entries for a gathering
+        int num = gov.findGatherings(100, 10, 10, 0.5f);
+        assertEquals(num, 2);
     }
 }
