@@ -1,0 +1,120 @@
+# Documentation
+
+## Code
+
+Below are the main classes of this program.
+
+### Government
+
+Government (configurationFile) -
+    constructor. takes the configuration filename as its argument
+    calls readFile on its Configuration instance with the given filename
+   
+mobileContact (initiator, contactInfo) -
+    called by MobileDevice. initiator is a string of the device's hash (which identifies it), contactInfo is a string containing that device's most recent contact information in XML format
+    convert the data into a list of Contact with the static Contact.fromXML method and add each of them with the DB.storeContact method
+
+mobileTest (initiator, testInfo) -
+    called by MobileDevice. initiator is a string of the device's hash (which identifies it), testInfo is a string containing that device's most recent test information in XML format
+    convert the data into a list of Test with the static Test.fromXML method and add each of them with the DB.storeTest method
+    
+recordTestResult (testHash. date, result) -
+    takes a string hash identifying a test having been taking, the date it was taken on, and the result of the test (positive/negative). stores this in the database
+
+findGatherings (date, minSize, minTime, density) -
+    finds gatherings on a given integer date. minSize denotes the minimum size to be considered; minTime, the minimum time the devices (people) need to have been close to be considered a gathering, and density is a floating point number which is the minimum density to report. density calculated by: c/(n(n-1)/2) where c is the size of the gathering and n is the maximum size of the gathering
+
+Algorithm:
+    get contacts on date "date" as a list
+    remove contact with time < minTime
+    for each pair (each contact, since pairs without a contact can't form a gathering)
+        find all devices contacted by both devices in the pair
+        calculate density as above
+        if density is above given density
+            increment count
+            remove found contacts from list
+
+### MobileDevice
+
+Keeps a list of recent contacts (Contact instances) it has had, which is emptied after synchronizing (sending to Government).
+Also keeps a list of positive tests (Test instances), which are sent to the government during syncing.
+
+MobileDevice (configurationFile, contactTracer) -
+    constructor. takes the configuration filename and a Government instance as its arguments.
+    calls readFile on its Configuration instance with the given filename
+
+recordContact (individual, date, duration) -
+    takes the device hash (string) of a device which came near this device, an integer date and an integer duration.
+    creates a Contact object with this device's id, the other device's id, and the date and duration, and stores it in a local list for later synchronizing
+
+positiveTest (testHash) -
+    takes a hash (string) uniquely identifiying a test having been taken. creates a Test object and stores it in a lista for later synchronizing
+
+synchronizeData () -
+    calls the mobileContact method on the Government instance, with its device hash as the first argument and a string containing the XML data of all Contact objects in the list, then empties the list.
+    calls the mobileTest method on the Government instance, with the same first argument, and a string containing the XML data of all Test objects, and empties that list as well.
+
+### Configuration
+
+This handles reading and storing configuration values for both the Government and MobileDevice classes.
+
+It has a hash map mapping keywords (String) to values (String) which is populated by the given file.
+
+readFile (filename) -
+    tries to read file "filename" with values in <keyword>=<value> format, and stores them in a hash map as described above
+    returns true if successful, false if the file was not found or the format incorrect
+
+getValue (keyword) -
+    returns the value associated with "keyword", or null if there is no associated value
+
+### DB
+
+Class which deals with the database.
+
+DB (domain, username, password) -
+    constructor. takes the credentials and address for the database and connects to it
+
+storeTestResult (testHash, date, result) -
+    stores the details of a test (its hash, the date when it was taken, and the result (P/N)) in the "tests" table.
+    returns true if successful
+
+setTestDeviceHash (deviceHash, testHash) -
+    updates the "tests" table to set the device hash of the row with the given "testHash"
+    returns true if successful, false if unsuccessful/ the row was not found
+
+storeContact (deviceHash, contact) -
+    taskes a device hash (string) and Contact object.
+    stores the details of a contact (the two device hashes, time and duration)
+
+getContactsOnDate (date) -
+    returns a list of Contact, corresponding to all contacts recorded on that date.
+
+wasNearPositive (deviceHash) -
+    takes a device hash (string), checks if it was in contact with any devices which tested positive the last 14 days. it returns true if so, and sets those contact rows as "notified". (each contact, if reported for each device, would have duplicate rows, e.g. device A and B would have rows {A, B, ...} and {B, A, ...})
+
+init () -
+    private. creates the needed tables if they are not already in the database
+
+### Contact
+
+Object containing details about one contact between two devices, stored by (component of) MobileDevice.
+
+Contact (deviceA, deviceB, date, duration) -
+    constructor. takes two string device hashes (the two devices that were near each other), an integer date and an integer duration.
+
+toXML () -
+    returns a string containing the contact in XML format, for transferring to Government
+
+### Test
+
+Object containing details about one test, stored by MobileDevice.
+
+Test (deviceHash, testHash) -
+    constructor. takes a device hash (of the local device), and a test hash (corresponding to a test having been taken)
+
+toXML () -
+    returns a string containing the test in XML format, for transferring to Government
+
+## White box tests
+
+
