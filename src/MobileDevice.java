@@ -16,6 +16,7 @@ public class MobileDevice {
         }
 
         gov = contactTracer;
+        config = new Configuration();
 
         if (!config.readFile(configurationFile)) {
             System.err.println("Cannot read mobile configuration file.");

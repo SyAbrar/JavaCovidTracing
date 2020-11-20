@@ -6,9 +6,31 @@ public class Government {
     DB db;
 
     Government (String configurationFile) {
+        config = new Configuration();
         config.readFile(configurationFile);
-        db = new DB(config.getValue("database"), config.getValue("user"),
-                config.getValue("password"));
+
+        String addr, user, password;
+
+        addr = config.getValue("database");
+        user = config.getValue("user");
+        password = config.getValue("password");
+        
+        if (addr == null) {
+            System.err.println("No database address in config (database=....");
+            return;
+        }
+
+        if (user == null) {
+            System.err.println("No database user in config (user=....");
+            return;
+        }
+
+        if (password == null) {
+            System.err.println("No database password in config (password=....");
+            return;
+        }
+
+        db = new DB(addr, user, password);
     }
 
     boolean mobileContact (String initiator, String contactInfo) {
