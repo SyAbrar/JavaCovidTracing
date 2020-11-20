@@ -19,15 +19,8 @@ public class Government {
             db.storeContact(initiator, contact);
         }
 
-        return true;
-    }
+        // db.setTestDeviceHash(initiator, testInfo);
 
-    // Separate method for communicating a test result, in this demo, called
-    // directly by MobileDevice.synchronizeData
-    boolean mobileTest (String initiator, String testInfo) {
-        // Government only knows the test hash so far, update the record to store the correct device id as well
-
-        db.setTestDeviceHash(initiator, testInfo);
         return true;
     }
 
