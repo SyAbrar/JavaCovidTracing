@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.util.List;
 
 public class Government {
     Configuration config;
@@ -6,13 +7,18 @@ public class Government {
 
     Government (String configurationFile) {
         config.readFile(configurationFile);
-        db = new DB(config.getValue("addr"), config.getValue("username")));
+        db = new DB(config.getValue("database"), config.getValue("user"),
+                config.getValue("password"));
     }
 
     boolean mobileContact (String initiator, String contactInfo) {
         // TODO for each contact
-        Contact.fromXML(contactInfo);
-        DB.storeContact(initiator, contact);
+        List<Contact> contacts = Contact.fromXML(contactInfo);
+
+        for (Contact contact : contacts) {
+            db.storeContact(initiator, contact);
+        }
+
         return true;
     }
 
@@ -20,16 +26,17 @@ public class Government {
     // directly by MobileDevice.synchronizeData
     boolean mobileTest (String initiator, String testInfo) {
         // Government only knows the test hash so far, update the record to store the correct device id as well
-        DB.setTestDeviceHash(initiator, testHash);
+
+        db.setTestDeviceHash(initiator, testInfo);
         return true;
     }
 
     void recordTestResult (String testHash, int date, boolean result) {
-        DB.storeTestResult(testHash, date, result);
+        db.storeTestResult(testHash, date, result);
     }
 
     int findGatherings (int date, int minSize, int minTime, float density) {
-        DB.getContactsOnDate(date);
+        db.getContactsOnDate(date);
         return 0;
     }
 }

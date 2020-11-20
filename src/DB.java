@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.List;
 
 public class DB {
@@ -6,7 +7,7 @@ public class DB {
         init();
     }
 
-    void storeTestResult () {
+    void storeTestResult (String testHash, int date, boolean result) {
         // TODO
     }
 
@@ -14,16 +15,19 @@ public class DB {
         // TODO update test row to have the device hash as well
     }
 
-    void storeContact () {
+    void storeContact (String initiator, Contact contact) {
         // TODO
     }
 
     List<Contact> getContactsOnDate (int date) {
+        List<Contact> result = new ArrayList<>();
         // TODO
+        return result;
     }
 
     boolean wasNearPositive (String deviceHash) {
         // TODO
+        return false;
     }
 
     private void init () {

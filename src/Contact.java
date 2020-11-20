@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.List;
 
 public class Contact {
@@ -19,7 +20,9 @@ public class Contact {
                 "</contact>";
     }
 
-    static List<Contact> fromXML () {
+    static List<Contact> fromXML (String xmlData) {
+        List<Contact> result = new ArrayList<>();
         // TODO;
+        return result;
     }
 }

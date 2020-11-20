@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.List;
 
 public class Test {
@@ -17,5 +18,8 @@ public class Test {
 
     static List<Test> fromXML () {
         // TODO;
+        List<Test> result = new ArrayList<>();
+
+        return result;
     }
 }
